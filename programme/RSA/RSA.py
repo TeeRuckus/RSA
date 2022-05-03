@@ -61,20 +61,32 @@ class RSA():
     #DOING METHOD
     def gcd(self, valOne, valTwo):
         """
-        https://www.geeksforgeeks.org/eulers-totient-function/
+        Calculates the greatest common dominator between numbers
         """
-
-        #TODO: you will need to have some error handling in here
-        #to actually make sure that gcd is behaving the way it's meant to behave
+        #making sure that the assumption of a > b > 0 is held  through the 
+        #algorithm
+        if not(valTwo > valOne or valTwo >= 0):
+            raise GCDError("ERROR: the following bust be true: a > b > 0"+
+                    ": a = %s and b = %s" % (valOne, valTwo)) 
 
         if (valOne == 0):
             return valTwo
         return self.gcd(valTwo % valOne, valOne)
 
-    def eulersTotient(self, inNum): 
+    def eulersTotient(self, n):
         """
         going to be represented by the symbol phi in calculations
+
+        Adapter from Web page: Euler's Totient function
+            WEBSITE: GeeksforGeeks
+            URL: https://www.geeksforgeeks.org/eulers-totient-function/
+            ACCESS DATA: 3/05/2022 
         """
+        result = 1
+        for i in range(2, n):
+            if (self.gcd(i, n) == 1):
+                result+=1
+        return result
 
 
 
