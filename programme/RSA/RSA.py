@@ -1,3 +1,4 @@
+from enum import Enum
 from Errors import *
 
 
@@ -10,7 +11,7 @@ class encryptionStatus(Enum):
     decrypted = 2
 
 class RSA():
-    def __init__():
+    def __init__(self):
         self.__message = None
         self.__privateKey = None
         self.__publicKey = None
@@ -39,19 +40,44 @@ class RSA():
     def privateKey(self, inPrivKey):
         self.__validateKey(inPrivKey)
 
-    @ppublicKey.setter
+    @publicKey.setter
     def publicKey(self, inPubKey):
         self.__validateKey(inPubKey)
 
 
     #PUBLIC METHODS
     def encryption(self):
+        """
+        e = M^(e) mod n
+        """
         pass
 
     def decryption(self):
+        """
+        d = M^(ed) mod n 
+        """
         pass 
 
     #DOING METHOD
+    def gcd(self, valOne, valTwo):
+        """
+        https://www.geeksforgeeks.org/eulers-totient-function/
+        """
+
+        #TODO: you will need to have some error handling in here
+        #to actually make sure that gcd is behaving the way it's meant to behave
+
+        if (valOne == 0):
+            return valTwo
+        return self.gcd(valTwo % valOne, valOne)
+
+    def eulersTotient(self, inNum): 
+        """
+        going to be represented by the symbol phi in calculations
+        """
+
+
+
     def loadFile(self, fileName):
         """
         Code adapted from own assignment one submission for fundamental concepts of 
