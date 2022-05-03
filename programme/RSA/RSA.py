@@ -46,6 +46,10 @@ class RSA():
 
 
     #PUBLIC METHODS
+    def genereateKey(self):
+        """
+        """
+
     def encryption(self):
         """
         e = M^(e) mod n
