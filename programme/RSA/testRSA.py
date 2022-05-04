@@ -46,3 +46,15 @@ class testRSA(unittest.TestCase):
         self.assertEqual(12, self.testObj.eulersTotient(28), "f(28) = 12")
         self.assertEqual(28, self.testObj.eulersTotient(29), "f(29) = 28")
         self.assertEqual(8, self.testObj.eulersTotient(30), "f(30) = 8")
+
+
+    def testMillerRabin(self):
+        k = 49
+
+        self.assertFalse(self.testObj.millerRabin(561 ,k), "n=561")
+        self.assertTrue(self.testObj.millerRabin(29, k),  "n=29")
+        self.assertFalse(self.testObj.millerRabin(221, k),  "n=221")
+        self.assertFalse(self.testObj.millerRabin(21, k),  "n=21")
+        self.assertTrue(self.testObj.millerRabin(47, k),  "n=47")
+        self.assertFalse(self.testObj.millerRabin(174, k),  "n=174")
+        self.assertFalse(self.testObj.millerRabin(200, k),  "n=200")

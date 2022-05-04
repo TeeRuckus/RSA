@@ -1,5 +1,8 @@
 from enum import Enum
 from Errors import *
+#better random generator, as it gives you non-pseudo random numbers for algorithm
+from random import SystemRandom
+
 
 
 class encryptionStatus(Enum):
@@ -91,6 +94,86 @@ class RSA():
             if (self.gcd(i, n) == 1):
                 result+=1
         return result
+
+
+    #TODO: you will need to make sure that you will understand the maths behind this function and how it will actually work
+    def millerRabin(self, n, k=49):
+        """
+        IMPORT: n : integer - the number which you're trying to determine is prime
+                k : integer - the number of trials to find if number is valid
+
+        EXPORT: boolean
+
+        PURPOSE: Implementation of the Miller Rabin algorithm to determine if
+        the current imported number is going to be a prime number over multiple
+        tests. If the algorithm fails any of the trials then the calculated
+        number is not a prime number
+
+        NOTES: - 49 tests will give the most optimal solution given some stack 
+        overflow threads
+        """
+
+        #not checking if a hasn't being repeated, as it's very unlikely for
+        #the random function to produce the same number as n is required to be 
+        #a very big number hence, they is a really big range of possible numbers
+        for ii in range(k):
+            a = SystemRandom().randrange(2, n-1)
+            if not self.__millerRabin(n,a):
+                #if it fails any test then it's a composite number
+                return False
+
+        return True
+
+    def __millerRabin(self, n, a):
+        """
+        IMPORT: n : integer - the number which you're trying to determine if 
+        it's prime number or not
+                a : integer - random generated number to satisfy the condition
+                ....
+
+        EXPORT: Boolean : True if's a prime number otherwise it's not a prime
+        number
+
+        PURPOSE: Implementation of single test of miller Rabin algorithm
+        """
+        #defining the starting exponent of the algorithm
+        exp = n - 1
+        #keep looping while the number is odd, using bit wise operation as it's
+        #faster
+
+        while not exp & 1:
+            #integer division by two for faster division
+            exp >>= 1
+
+        #obtained smallest odd number
+        if pow(a, exp, n) ==  1:
+            return True
+
+        #for the condition when exp = -1. Since we're doing modulo division
+        #n-1 is the same as -1
+        while exp < n  - 1:
+            if pow(a, exp, n) == n -1:
+                return True
+
+            #multiplying exponent by 2
+            exp <<= 1
+
+        return False
+
+
+    def __findKandQ(self, n):
+        """
+        finding a power which will satisfy the following condition of 
+        n -1 = 2^k * q
+        """
+        currPow = 1
+        while (n % 2 == 0):
+            #finding out how many times we can divide this number by 2 
+            #until it will get to a floating point number
+            currPow += 1
+            n = n / 2
+
+        return currPow, n
 
 
 
@@ -239,3 +322,10 @@ class RSA():
     def __validateKey(self, inPubKey):
         #TODO: come back and implement this method when you will have time
         pass
+
+    def __validateInteger(self, n):
+        if (n % 1 != 0):
+            raise ValueError("RSA only works with whole numbers, %s was supplied" % n)
+
+        return n
+
