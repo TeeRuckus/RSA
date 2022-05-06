@@ -58,3 +58,13 @@ class testRSA(unittest.TestCase):
         self.assertTrue(self.testObj.millerRabin(47, k),  "n=47")
         self.assertFalse(self.testObj.millerRabin(174, k),  "n=174")
         self.assertFalse(self.testObj.millerRabin(200, k),  "n=200")
+
+    #@unittest.skip("takes a long time for it to generate a key hence, don't want to slow down algorithm")
+    def testKeyGeneration(self):
+        #this is going to be testing assuming that the testMillerRabin function
+        #will work properly. Hence, it's coupled to that function and it's 
+        #working 
+
+        p,q = self.testObj.generateKeys()
+        self.assertTrue(self.testObj.millerRabin(p), "testing if p is prime number")
+        self.assertTrue(self.testObj.millerRabin(q), "testing if q is prime number")

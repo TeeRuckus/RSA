@@ -7,7 +7,7 @@ from random import SystemRandom
 
 class encryptionStatus(Enum):
     """
-    Code adapted from own assignment one submission for fundamental concepts of 
+    Code adapted from own assignment one submission for fundamental concepts of
     cryptography ISEC2000
     """
     encrypted = 1
@@ -96,7 +96,71 @@ class RSA():
         return result
 
 
-    #TODO: you will need to make sure that you will understand the maths behind this function and how it will actually work
+    #TODO: just generate numbers which are going to be 155 digits long and 
+    #just pick a number in between that range, it's better to get something implemented
+    #by trying to do it the right way if I am being honest with you at this current moment
+    def generateKeys(self):
+        """
+        PURPOSE: to generate a p and q value which will form a target n 
+        in the range of 2^1024. Hence, it will produce a p and q which are going
+        to be 2^512. Numbers in the range will approximately have 155 
+        digits 
+
+        Notes: 
+            TODO: currently mocking function to allow for faster execution
+            times hence, come back and change this so it generates numbers in
+            appropriate range
+        """
+
+        #the target n is going to be 2^1024 for cryptographic secure
+        #algorithm. Hence, the prime numbers will need to be in the range of 
+        #2^512 which will be approximately 155 digits long. Hence, randomly
+        #generating numbers which will have 155 digits
+
+        """
+        lowerBound = "".join(["0" for ii in range(1,155)])
+        lowerBound = int("1" + lowerBound)
+        upperBound = "".join(["9" for ii in range(1,156)])
+        upperBound = int(upperBound)
+        """
+        valid = False
+        p, q = None, None
+        pValid, qValid  = False, False
+
+        #TODO: comeback and remove the mocking of this current objec
+        """
+        lowerBound = 1
+        upperBound = 10
+        """
+        #lowest bound should be 3 to satisfy n-1 in miller rabin algortihm
+        lowerBound = 4
+        upperBound = 20
+
+
+        while not valid:
+            #keeping looping till p and q are going to be both prime numbers
+            #we don't want to keep re-generating p and q if we have 
+            #already found a prime number, as the computation process,=
+            if not pValid:
+                p = SystemRandom().randrange(lowerBound, upperBound)
+
+            if not qValid:
+                q = SystemRandom().randrange(lowerBound, upperBound)
+
+            if(self.millerRabin(p)):
+                pValid = True
+
+            if(self.millerRabin(q)):
+                qValid = True
+
+            if(pValid and qValid):
+                valid = True
+
+        return (p,q)
+
+
+
+
     def millerRabin(self, n, k=49):
         """
         IMPORT: n : integer - the number which you're trying to determine is prime
