@@ -65,7 +65,7 @@ class testRSA(unittest.TestCase):
         #will work properly. Hence, it's coupled to that function and it's 
         #working 
 
-        p,q = self.testObj.generatePandQ()
+        p,q = self.testObj.generateKeys()
         self.assertTrue(self.testObj.millerRabin(p), "testing if p is prime number")
         self.assertTrue(self.testObj.millerRabin(q), "testing if q is prime number")
 
@@ -73,5 +73,4 @@ class testRSA(unittest.TestCase):
         #1024 bits for the target n which we will need to make
         n = p * q
         binaryBits = bin(n)[2:]
-        #TODO: I don't know about this, it might need to be exactly 1024, make sure that you verify with documentations
-        #self.assertLess(1024, len(binaryBits), "multiplication of primes must be 1024")
+        self.assertEqual(1024, len(binaryBits), "multiplication of primes must be 1024")

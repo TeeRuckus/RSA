@@ -96,10 +96,14 @@ class RSA():
         return result
 
 
+    def generateKeys(self):
+        """
+        """
+
     #TODO: just generate numbers which are going to be 155 digits long and 
     #just pick a number in between that range, it's better to get something implemented
     #by trying to do it the right way if I am being honest with you at this current moment
-    def generateKeys(self):
+    def generatePandQ(self):
         """
         PURPOSE: to generate a p and q value which will form a target n 
         in the range of 2^1024. Hence, it will produce a p and q which are going
@@ -117,6 +121,11 @@ class RSA():
         #2^512 which will be approximately 155 digits long. Hence, randomly
         #generating numbers which will have 155 digits
 
+        #TODO: comeback and remove the mocking of this current objec
+        #lowest bound should be 3 to satisfy n-1 in miller rabin algortihm
+        lowerBound = 4
+        upperBound = 20
+
         """
         lowerBound = "".join(["0" for ii in range(1,155)])
         lowerBound = int("1" + lowerBound)
@@ -126,15 +135,6 @@ class RSA():
         valid = False
         p, q = None, None
         pValid, qValid  = False, False
-
-        #TODO: comeback and remove the mocking of this current objec
-        """
-        lowerBound = 1
-        upperBound = 10
-        """
-        #lowest bound should be 3 to satisfy n-1 in miller rabin algortihm
-        lowerBound = 4
-        upperBound = 20
 
 
         while not valid:
@@ -147,11 +147,15 @@ class RSA():
             if not qValid:
                 q = SystemRandom().randrange(lowerBound, upperBound)
 
-            if(self.millerRabin(p)):
-                pValid = True
+            #if the generated number is even, we already know it's not prime, 
+            #don't even bother to test  the following number for primality
+            if (p & 1):
+                if(self.millerRabin(p)):
+                    pValid = True
 
-            if(self.millerRabin(q)):
-                qValid = True
+            if(q & 1):
+                if(self.millerRabin(q)):
+                    qValid = True
 
             if(pValid and qValid):
                 valid = True
@@ -204,7 +208,6 @@ class RSA():
         exp = n - 1
         #keep looping while the number is odd, using bit wise operation as it's
         #faster
-
         while not exp & 1:
             #integer division by two for faster division
             exp >>= 1
