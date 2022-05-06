@@ -66,19 +66,21 @@ class RSA():
         pass 
 
     #DOING METHOD
-    def gcd(self, valOne, valTwo):
+    def  gcdExt(self, a, b):
         """
-        Calculates the greatest common dominator between numbers
+        Extracted code from assignment one fundamentals of cryptography
+        submission
         """
-        #making sure that the assumption of a > b > 0 is held  through the 
-        #algorithm
-        if not(valTwo > valOne or valTwo >= 0):
-            raise GCDError("ERROR: the following bust be true: a > b > 0"+
-                    ": a = %s and b = %s" % (valOne, valTwo)) 
+        # Base Case 
+        if a == 0 :
+            return b,0,1
+        #recursive call to find the GCD
+        gcd,x1,y1 = self.gcdExt(b%a, a)
+        x = y1 - (b//a) * x1
+        y = x1
 
-        if (valOne == 0):
-            return valTwo
-        return self.gcd(valTwo % valOne, valOne)
+        return gcd,x,y
+
 
     def eulersTotient(self, n):
         """
@@ -91,19 +93,29 @@ class RSA():
         """
         result = 1
         for i in range(2, n):
-            if (self.gcd(i, n) == 1):
+            if (self.gcdExt(i, n)[0] == 1):
                 result+=1
         return result
 
 
     def generateKeys(self):
         """
+        PURPOSE: To generate the public keys e and d, and to generate a
+        private key which will be used by the algorithm
         """
+
+        p,q = self._generatePandQ()
+        n = p * q
+        phi = (p - 1) * (q - 1)
+
+        #selecting the public exponent
+
+
 
     #TODO: just generate numbers which are going to be 155 digits long and 
     #just pick a number in between that range, it's better to get something implemented
     #by trying to do it the right way if I am being honest with you at this current moment
-    def generatePandQ(self):
+    def _generatePandQ(self):
         """
         PURPOSE: to generate a p and q value which will form a target n 
         in the range of 2^1024. Hence, it will produce a p and q which are going

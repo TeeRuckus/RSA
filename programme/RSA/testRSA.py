@@ -6,14 +6,14 @@ class testRSA(unittest.TestCase):
 
 
     def testGCD(self):
-        self.assertEqual(12, self.testObj.gcd(60,24),'gcd(60,24)')
-        self.assertEqual(11, self.testObj.gcd(22,11), 'gcd(22,11)')
-        self.assertEqual(6, self.testObj.gcd(12,6), 'gcd(12,6)')
-        self.assertEqual(6, self.testObj.gcd(18,12), 'gcd(18,12)')
-        self.assertEqual(6, self.testObj.gcd(6,0), 'gcd(6,0)')
-        self.assertEqual(1, self.testObj.gcd(11,10), 'gcd(11,10)')
-        self.assertEqual(1, self.testObj.gcd(10,1), 'gcd(10,1)')
-        self.assertEqual(1, self.testObj.gcd(1,0), 'gcd(1,0)')
+        self.assertEqual(12, self.testObj.gcdExt(60,24)[0],'gcd(60,24)')
+        self.assertEqual(11, self.testObj.gcdExt(22,11)[0], 'gcd(22,11)')
+        self.assertEqual(6, self.testObj.gcdExt(12,6)[0], 'gcd(12,6)')
+        self.assertEqual(6, self.testObj.gcdExt(18,12)[0], 'gcd(18,12)')
+        self.assertEqual(6, self.testObj.gcdExt(6,0)[0], 'gcd(6,0)')
+        self.assertEqual(1, self.testObj.gcdExt(11,10)[0], 'gcd(11,10)')
+        self.assertEqual(1, self.testObj.gcdExt(10,1)[0], 'gcd(10,1)')
+        self.assertEqual(1, self.testObj.gcdExt(1,0)[0], 'gcd(1,0)')
 
     def testEulersTotientFunction(self):
         self.assertEqual(1, self.testObj.eulersTotient(1), "f(1) = 1")
@@ -65,7 +65,7 @@ class testRSA(unittest.TestCase):
         #will work properly. Hence, it's coupled to that function and it's 
         #working 
 
-        p,q = self.testObj.generatePandQ()
+        p,q = self.testObj._generatePandQ()
         self.assertTrue(self.testObj.millerRabin(p), "testing if p is prime number")
         self.assertTrue(self.testObj.millerRabin(q), "testing if q is prime number")
 
@@ -75,3 +75,16 @@ class testRSA(unittest.TestCase):
         binaryBits = bin(n)[2:]
         #TODO: I don't know about this, it might need to be exactly 1024, make sure that you verify with documentations
         #self.assertLess(1024, len(binaryBits), "multiplication of primes must be 1024")
+
+
+    def testExtendedEuclidean(self):
+        result = self.testObj.gcdExt(1398, 324)
+
+        self.assertEqual((6,-19,82) , self.testObj.gcdExt(1398, 324), "a=139 b=324")
+        self.assertEqual((1,1,0), self.testObj.gcdExt(1,2), " a=1 b=2")
+        self.assertEqual((1,13,-3), self.testObj.gcdExt(13, 56), " a=13 b=56 ")
+        self.assertEqual((31,2,-3), self.testObj.gcdExt(527,341), " a=527 b=341 ")
+        self.assertEqual((6,5,-7), self.testObj.gcdExt(270,192), " a=270 b=192")
+        self.assertEqual((12,2,-1), self.testObj.gcdExt(36,60), " a=36 b=60 ")
+        self.assertEqual((5,-3,5), self.testObj.gcdExt(65,40), " a=65 b=40 ")
+        self.assertEqual((13,-6,1), self.testObj.gcdExt(26,169), " a=26 b=169 ")
