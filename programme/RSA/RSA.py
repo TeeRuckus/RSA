@@ -3,6 +3,7 @@ from Errors import *
 #recommended package for cryptographic safe random generated numbers
 from secrets import SystemRandom
 
+#TODO: you will actually need to consider if you will need this class in this program or not, just seems like it's making your code highly coupled and is a waste of time
 class encryptionStatus(Enum):
     """
     Code adapted from own assignment one submission for fundamental concepts of
@@ -16,10 +17,15 @@ class RSA():
         self.__message = None
         self.__privateKey = None
         self.__publicKey = None
+        self.__n = None
         self.__encryption  = encryptionStatus.decrypted
 
 
     #ACCESSOR METHODS
+    @property
+    def n(self): 
+        return n
+
     @property
     def message(self):
         return str(self.__message)
@@ -39,11 +45,15 @@ class RSA():
 
     @privateKey.setter 
     def privateKey(self, inPrivKey):
-        self.__validateKey(inPrivKey)
+        self.__privateKey = self.__validateKey(inPrivKey)
 
     @publicKey.setter
     def publicKey(self, inPubKey):
-        self.__validateKey(inPubKey)
+        self.__publicKey = self.__validateKey(inPubKey)
+
+    @n.setter
+    def n(self, inN):
+        self.__n = self.__validateInteger(inN)
 
 
     def encryption(self):
@@ -51,11 +61,56 @@ class RSA():
         PURPOSE: an encryption algorithm which will satisfy the following
         e = M^(e) mod n, M < n
         """
-        if(self.__message > n):
+
+        if self.__message == None:
+            raise RSAEncryptionError("Please set message before trying "+
+                    "encryption")
+
+        #only the public key is needed when we're going to be encrypting a message
+        if self.__publicKey == None:
+            raise RSAEncryptionError("Please set public key before trying "+
+                    "encryption")
+
+        if self.n == None:
+            raise RSAEncryptionError("Please set n before trying "+
+                    "encryption")
+
+
+        #we want each block to be no more than 2^1024 integers long
+        startVal = [xx for xx in range(0, len(self.__message), 2**1024)]
+        blocks = self.__createBlocks(self.__message, startVal)
+
+        encryptedBlocks = []
+        for block in blocks:
+            encryptedBlocks.append(self.__encryptBlock(block))
+
+        eMssg = "".join(encryptedBlocks)
+        self.__message = eMssg
+
+        return eMssg
+
+
+
+    def __encryptBlock(self, inBlock):
+        """
+        PURPOSE: an encryption algorithm which will satisfy the following
+        e = M^(e) mod n, M < n. This will encrypt just one single block at a time.
+
+        The algorithm will encrypt one number at a time, to make it easier to
+        decrypt when reading in from a file later on
+        """
+        encrypted = ""
+        if(len(inBlock) > self.__n):
             raise RSAEncryptionError("Length of message has to be less than n"+
                     " length of n: %s and length of message: %s" % (n,self.__message))
 
-        #TODO: you will need to implement the fast exponentiation of the algorithm so you can calcualte all the numbers out properly
+        #converting each character into an integer
+        blockInts = "".join([str(ord(xx)) for xx in inBlock])
+
+        for mssg in blockInts:
+            e += str(pow(int(mssg), self.__publicKey[0], self.__publicKey[1]))
+
+        return e
 
 
 
@@ -64,6 +119,8 @@ class RSA():
         d = M^(ed) mod n 
         """
         pass 
+
+
 
     def _squareAndMultiply(self,exp:int, base:int, n:int) -> int:
         """
@@ -144,10 +201,13 @@ class RSA():
                 valid = True
 
         #we now have our sets of our public keys which we can use
-        pubKeys = (n, e)
+        pubKeys = e
         #calculating the key private keys used for the algorithm
         d = self, gcdExt(e, phi)[1]
-        privKey = (d, n)
+        privKey = d
+
+        self.__privateKey = privKey
+        self.__publicKey = pubKey
 
         return (pubKey, privKey, n)
 
@@ -444,17 +504,56 @@ class RSA():
         return chr(decNum)
 
     #PRIVATE METHODS 
-    def __validateMessage(self, inMssg): 
-        #TODO: come back and implement this method when you will have time
-        pass
 
-    def __validateKey(self, inPubKey):
-        #TODO: come back and implement this method when you will have time
-        pass
+    def __createBlocks(self,inBinary,startVal):
+        """
+        PURPOSE: to divide up a message into blocks in relation to the starting
+        values lists which is passed into the function
+        """
+
+        blocks = []
+        for pos, start in enumerate(startVal):
+            #if they is going to be only one block, we just ant to return that
+            if len(startVal) == 1:
+                blocks.append(inBinary)
+            elif pos < len(startVal) - 1:
+                blocks.append(inBinary[start:startVal[pos+1]])
+
+        blocks.append(inBinary[startVal[-1]:])
+
+        return blocks
+
+    def __validateMessage(self, inMssg):
+        #message can be anything as long as it's a string, and that string
+        #will have something in it
+        if(not isinstance(inMssg, str)):
+            raise RSAMessageError("Message must be a string, type of %s "+
+                    "was given instead" % type(inMssg))
+
+        if (len(inMssg) == 0):
+            raise RSAMessageError("A blank message was supplied length of"
+                    "%s message was supplied " % len(inMssg))
+
+        return inMssg
+
+    def __validateKey(self, inKey):
+        if (not isinstance(inKey, int)):
+            raise  RSAKeyError("key must be an integer number type of %s "+
+                    "was supplied instead" % type(ii))
+
+        if (self.__n == None):
+            raise RSAKeyError("Please set n before you set the keys")
+
+        #need to check if the keys are going to be co-prime to each other, as
+        #they should've being due to the calculation of the key
+        if(self.gcdExt(inKey[0], self.__n)[0] != 1):
+            raise RSAKeyError("Key must be co-prime with n")
+
+        return  inKey
 
     def __validateInteger(self, n):
-        if (n % 1 != 0):
-            raise ValueError("RSA only works with whole numbers, %s was supplied" % n)
+        if not isinstance(n, int):
+            raise ValueError("RSA must only work with integers")
 
         return n
 

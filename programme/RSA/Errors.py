@@ -12,3 +12,7 @@ class GCDError(Error):
 class RSAEncryptionError(Error):
     def __init__(self, message):
         self.message = message
+
+class RSAMessageError(Error):
+    def __init__(self, message):
+        self.message = message
