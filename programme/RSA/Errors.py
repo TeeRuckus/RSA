@@ -8,3 +8,7 @@ class RSAKeyError(Error):
 class GCDError(Error):
     def __init__(self, message):
         self.message = message
+
+class RSAEncryptionError(Error):
+    def __init__(self, message):
+        self.message = message

@@ -88,3 +88,14 @@ class testRSA(unittest.TestCase):
         self.assertEqual((12,2,-1), self.testObj.gcdExt(36,60), " a=36 b=60 ")
         self.assertEqual((5,-3,5), self.testObj.gcdExt(65,40), " a=65 b=40 ")
         self.assertEqual((13,-6,1), self.testObj.gcdExt(26,169), " a=26 b=169 ")
+
+    def testSquareAndMultiply(self):
+        b = [11, 11, 3, 7, 7, 256, 12345]
+        e = [26,13, 104, 560, 10000000, 10000000,9999]
+        n = [2, 53, 67, 561, 561, 561, 256]
+        sol = [1, 52, 25, 1, 1, 1, 137]
+
+        for ii in range(len(b)):
+            self.assertEqual(sol[ii],
+                    self.testObj._squareAndMultiply(e[ii], b[ii], n[ii]))
+

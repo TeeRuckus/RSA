@@ -1,9 +1,7 @@
 from enum import Enum
 from Errors import *
-#better random generator, as it gives you non-pseudo random numbers for algorithm
-from random import SystemRandom
-
-
+#recommended package for cryptographic safe random generated numbers
+from secrets import SystemRandom
 
 class encryptionStatus(Enum):
     """
@@ -48,16 +46,18 @@ class RSA():
         self.__validateKey(inPubKey)
 
 
-    #PUBLIC METHODS
-    def genereateKey(self):
-        """
-        """
-
     def encryption(self):
         """
-        e = M^(e) mod n
+        PURPOSE: an encryption algorithm which will satisfy the following
+        e = M^(e) mod n, M < n
         """
-        pass
+        if(self.__message > n):
+            raise RSAEncryptionError("Length of message has to be less than n"+
+                    " length of n: %s and length of message: %s" % (n,self.__message))
+
+        #TODO: you will need to implement the fast exponentiation of the algorithm so you can calcualte all the numbers out properly
+
+
 
     def decryption(self):
         """
@@ -65,11 +65,37 @@ class RSA():
         """
         pass 
 
+    def _squareAndMultiply(self,exp:int, base:int, n:int) -> int:
+        """
+        PURPOSE: an efficient manner to find the solution to thew following
+        problem base ^ exp mod n. This is really useful for dealing with
+        algorithms which will have very large numbers. Therefore, the output
+        of this algorithm will be the following
+        y = base^(exp) mod n
+
+
+        The square and multiply algorithm as outlined in lecture 6: Public Key
+        Cryptography and RSA
+        """
+
+        #representing the base number as a binary number 
+        binaryExp = self._int2Binary(exp)
+        y = base
+
+        for ii in binaryExp[1:]:
+            y = pow(y, 2, n)
+            if ii.strip() == "1":
+                y = (y * base) % n
+
+        return y
+
     #DOING METHOD
-    def  gcdExt(self, a, b):
+    def  gcdExt(self, a:int, b:int) -> "(gcd, x, y)":
         """
         Extracted code from assignment one fundamentals of cryptography
         submission
+
+        ax + by = gcd(a,b)
         """
         # Base Case 
         if a == 0 :
@@ -89,7 +115,7 @@ class RSA():
         Adapter from Web page: Euler's Totient function
             WEBSITE: GeeksforGeeks
             URL: https://www.geeksforgeeks.org/eulers-totient-function/
-            ACCESS DATA: 3/05/2022 
+            ACCESS DATA: 3/05/2022
         """
         result = 1
         for i in range(2, n):
@@ -105,10 +131,26 @@ class RSA():
         """
 
         p,q = self._generatePandQ()
+        #TODO:this number is going to become the modulus key in your encryption
+        #and decryption scheme, and  that number will become public
         n = p * q
         phi = (p - 1) * (q - 1)
+        valid = False
+        #selecting the appropriate public exponent
 
-        #selecting the public exponent
+        while not valid:
+            e = SystemRandom().randrange(2, phi)
+            if (self.gcdExt(phi,e)[0] == 1):
+                valid = True
+
+        #we now have our sets of our public keys which we can use
+        pubKeys = (n, e)
+        #calculating the key private keys used for the algorithm
+        d = self, gcdExt(e, phi)[1]
+        privKey = (d, n)
+
+        return (pubKey, privKey, n)
+
 
 
 
@@ -117,12 +159,12 @@ class RSA():
     #by trying to do it the right way if I am being honest with you at this current moment
     def _generatePandQ(self):
         """
-        PURPOSE: to generate a p and q value which will form a target n 
+        PURPOSE: to generate a p and q value which will form a target n
         in the range of 2^1024. Hence, it will produce a p and q which are going
-        to be 2^512. Numbers in the range will approximately have 155 
-        digits 
+        to be 2^512. Numbers in the range will approximately have 155
+        digits
 
-        Notes: 
+        Notes:
             TODO: currently mocking function to allow for faster execution
             times hence, come back and change this so it generates numbers in
             appropriate range
@@ -333,6 +375,14 @@ class RSA():
         binaryNum = format(decNum, "0>4b")
 
         return binaryNum
+
+
+    def _int2Binary(self, intNum, requiredLen=0):
+        """
+        PURPOSE: to convert an integer number to a binary number of a required 
+        length, if binary number can be represented by the required length
+        """
+        return format(intNum, "0>"+str(requiredLen)+"b")
 
     #TODO: I think that he maths in here is going to be a little bit wrong
     def _padBinaryNum(self, inBinary, requiredLen):
