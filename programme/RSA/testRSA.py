@@ -90,7 +90,7 @@ class testRSA(unittest.TestCase):
         self.assertEqual((13,-6,1), self.testObj.gcdExt(26,169), " a=26 b=169 ")
 
     def testSquareAndMultiply(self):
-        b = [11, 11, 3, 7, 7, 256, 12345]
+        b = [11, 11, 3, 7, 7, 256, 12345, ]
         e = [26,13, 104, 560, 10000000, 10000000,9999]
         n = [2, 53, 67, 561, 561, 561, 256]
         sol = [1, 52, 25, 1, 1, 1, 137]
@@ -98,4 +98,10 @@ class testRSA(unittest.TestCase):
         for ii in range(len(b)):
             self.assertEqual(sol[ii],
                     self.testObj._squareAndMultiply(e[ii], b[ii], n[ii]))
+    
+    def testEncyption(self):
+        self.testObj.n = 187
+        self.testObj.publicKey = 7
+        self.testObj.message = 88
+        self.assertEqual("7878", self.testObj.encrypt(), "encrypting number 88")
 

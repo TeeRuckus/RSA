@@ -24,7 +24,7 @@ class RSA():
     #ACCESSOR METHODS
     @property
     def n(self): 
-        return n
+        return self.__n
 
     @property
     def message(self):
@@ -56,7 +56,7 @@ class RSA():
         self.__n = self.__validateInteger(inN)
 
 
-    def encryption(self):
+    def encrypt(self):
         """
         PURPOSE: an encryption algorithm which will satisfy the following
         e = M^(e) mod n, M < n
@@ -77,12 +77,17 @@ class RSA():
 
 
         #we want each block to be no more than 2^1024 integers long
-        startVal = [xx for xx in range(0, len(self.__message), 2**1024)]
-        blocks = self.__createBlocks(self.__message, startVal)
+        #messageInts = "".join([str(ord(xx)) for xx in self.__message])
+        #we know that the maximum ASCII number is going to be 127 hence, 
+        #need to make sure that all numbers are going to be in groups of threes
+        #messageInts = "".join([format(ord(xx), "0>3") for  xx in self.__message])
+        messageInts = [format(ord(xx), "0>3") for  xx in self.__message]
+        #startVal = [xx for xx in range(0, len(messageInts), self.__n)]
+        #blocks = self.__createBlocks(messageInts, startVal)
 
         encryptedBlocks = []
-        for block in blocks:
-            encryptedBlocks.append(self.__encryptBlock(block))
+        for number in messageInts:
+            encryptedBlocks.append(self.__encryptBlock(number))
 
         eMssg = "".join(encryptedBlocks)
         self.__message = eMssg
@@ -99,16 +104,14 @@ class RSA():
         The algorithm will encrypt one number at a time, to make it easier to
         decrypt when reading in from a file later on
         """
-        encrypted = ""
         if(len(inBlock) > self.__n):
             raise RSAEncryptionError("Length of message has to be less than n"+
-                    " length of n: %s and length of message: %s" % (n,self.__message))
+                    " length of n: %s and length of message: %s" % (self.__n,len(self.__message)))
 
-        #converting each character into an integer
-        blockInts = "".join([str(ord(xx)) for xx in inBlock])
-
-        for mssg in blockInts:
-            e += str(pow(int(mssg), self.__publicKey[0], self.__publicKey[1]))
+        e = str(pow(int(inBlock), self.__publicKey, self.__n))
+        #formatting the encrypted message, so it will be a lot easier to 
+        #decrypt at the end
+        e = format(e, "0>3")
 
         return e
 
@@ -210,9 +213,38 @@ class RSA():
         self.__publicKey = pubKey
 
         return (pubKey, privKey, n)
+    
 
+    #TODO: I have no idea why this is working right now but it is 
+    def loadFile(self, fileName):
+        """
+        """
+        with open(fileName, "r") as inStrm:
+            #read the file in as a gigantic string
+            fileContents = inStrm.readlines()
 
+        #I want the file contents as one giant string
+        fileContents = "".join(fileContents)
+        self.__message = fileContents
 
+        """
+        binaryFileContents = []
+        if (self.__encryption == encryptionStatus.decrypted):
+            for char in fileContents:
+                binaryFileContents.append(self._char2Binary(char))
+        else:
+            for hexDec in fileContents:
+                #binaryFileContents.append(self._hexadecimal2Binary(hexDec))
+                binaryFileContents.append(self._hexadecimal2BinaryFile(hexDec))
+
+        #making this back into one giant string again
+        binaryFileContents = "".join(binaryFileContents)
+        self.__message = binaryFileContents
+        print("message length ", len(self.__message))
+
+        return binaryFileContents
+        """
+        return fileContents
 
     #TODO: just generate numbers which are going to be 155 digits long and 
     #just pick a number in between that range, it's better to get something implemented
@@ -358,34 +390,6 @@ class RSA():
 
 
 
-    def loadFile(self, fileName):
-        """
-        Code adapted from own assignment one submission for fundamental concepts of 
-        cryptography ISEC2000
-        """
-        with open(fileName, "r") as inStrm:
-            #read the file in as a gigantic string
-            fileContents = inStrm.readlines()
-
-        #I want the file contents as one giant string
-        fileContents = "".join(fileContents)
-
-        binaryFileContents = []
-        if (self.__encryption == encryptionStatus.decrypted):
-            for char in fileContents:
-                binaryFileContents.append(self._char2Binary(char))
-        else:
-            for hexDec in fileContents:
-                #binaryFileContents.append(self._hexadecimal2Binary(hexDec))
-                binaryFileContents.append(self._hexadecimal2BinaryFile(hexDec))
-
-        #making this back into one giant string again
-        binaryFileContents = "".join(binaryFileContents)
-        self.__message = binaryFileContents
-        print("message length ", len(self.__message))
-
-        return binaryFileContents
-
     def saveFile(self, fileName):
         """
         Code adapted from own assignment one submission for fundamental concepts of 
@@ -505,30 +509,30 @@ class RSA():
 
     #PRIVATE METHODS 
 
-    def __createBlocks(self,inBinary,startVal):
+    def __createBlocks(self,inStr,startVal):
         """
         PURPOSE: to divide up a message into blocks in relation to the starting
         values lists which is passed into the function
         """
-
         blocks = []
         for pos, start in enumerate(startVal):
             #if they is going to be only one block, we just ant to return that
             if len(startVal) == 1:
-                blocks.append(inBinary)
+                blocks.append(inStr)
             elif pos < len(startVal) - 1:
-                blocks.append(inBinary[start:startVal[pos+1]])
+                blocks.append(inStr[start:startVal[pos+1]])
 
-        blocks.append(inBinary[startVal[-1]:])
+        if len(startVal) != 1:
+            blocks.append(inStr[startVal[-1]:])
 
         return blocks
 
     def __validateMessage(self, inMssg):
-        #message can be anything as long as it's a string, and that string
-        #will have something in it
-        if(not isinstance(inMssg, str)):
-            raise RSAMessageError("Message must be a string, type of %s "+
-                    "was given instead" % type(inMssg))
+        #forcing inMssg to be a string when it's read in
+        inMssg = str(inMssg)
+#        if(not isinstance(inMssg, str)):
+#            raise RSAMessageError("Message must be a string, type of %s "+
+#                    "was given instead" % type(inMssg))
 
         if (len(inMssg) == 0):
             raise RSAMessageError("A blank message was supplied length of"
@@ -546,7 +550,7 @@ class RSA():
 
         #need to check if the keys are going to be co-prime to each other, as
         #they should've being due to the calculation of the key
-        if(self.gcdExt(inKey[0], self.__n)[0] != 1):
+        if(self.gcdExt(inKey, self.__n)[0] != 1):
             raise RSAKeyError("Key must be co-prime with n")
 
         return  inKey
@@ -556,4 +560,3 @@ class RSA():
             raise ValueError("RSA must only work with integers")
 
         return n
-
