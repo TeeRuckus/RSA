@@ -75,15 +75,7 @@ class RSA():
             raise RSAEncryptionError("Please set n before trying "+
                     "encryption")
 
-
-        #we want each block to be no more than 2^1024 integers long
-        #messageInts = "".join([str(ord(xx)) for xx in self.__message])
-        #we know that the maximum ASCII number is going to be 127 hence, 
-        #need to make sure that all numbers are going to be in groups of threes
-        #messageInts = "".join([format(ord(xx), "0>3") for  xx in self.__message])
         messageInts = [format(ord(xx), "0>3") for  xx in self.__message]
-        #startVal = [xx for xx in range(0, len(messageInts), self.__n)]
-        #blocks = self.__createBlocks(messageInts, startVal)
 
         encryptedBlocks = []
         for number in messageInts:
@@ -117,11 +109,52 @@ class RSA():
 
 
 
-    def decryption(self):
+    def decrypt(self):
         """
-        d = M^(ed) mod n 
+        To decrypt the whole message in relation to the function
+        d = M^(d) mod n 
         """
-        pass 
+
+        if self.__message == None:
+            raise RSADecryptionError("Please set a cipher text before trying"+
+                    " to decrypt message")
+
+        if self.__privateKey == None: 
+            raise RSADecryptionError("Please set private key before trying"+
+                    " to decrypt messages")
+
+
+        if self.__n == None:
+            raise RSADecryptionError("Please set n before trying to "
+                    "decrypt message")
+
+
+        #the cipher texts will have being stored in groups of three
+        #from the encryption algorithm, getting groups of three from the
+        #algorithm 
+        startValues = [xx for xx in range(0, len(self.__message), 3)]
+        cipher = self.__createBlocks(self.__message, startValues)
+
+        message = []
+        for number in cipher:
+            message.append(self.__decryptBlock(number))
+
+        message = "".join(message)
+        self.__message = message
+
+        return message
+
+
+    def __decryptBlock(self, inCipher):
+        """
+        decrypting an integer, and the actual implementation of the decryption
+        of
+        d = m^(d) mod n
+        """
+        print("inCipher: ", inCipher)
+        e = chr(pow(int(inCipher), self.__privateKey, self.__n))
+
+        return e
 
 
 
@@ -191,8 +224,6 @@ class RSA():
         """
 
         p,q = self._generatePandQ()
-        #TODO:this number is going to become the modulus key in your encryption
-        #and decryption scheme, and  that number will become public
         n = p * q
         phi = (p - 1) * (q - 1)
         valid = False
@@ -204,20 +235,20 @@ class RSA():
                 valid = True
 
         #we now have our sets of our public keys which we can use
-        pubKeys = e
+        pubKey = e
         #calculating the key private keys used for the algorithm
-        d = self, gcdExt(e, phi)[1]
+        d = self.gcdExt(e, phi)[1]
         privKey = d
 
         self.__privateKey = privKey
         self.__publicKey = pubKey
 
         return (pubKey, privKey, n)
-    
 
     #TODO: I have no idea why this is working right now but it is 
-    def loadFile(self, fileName):
+    def loadFileText(self, fileName):
         """
+        load a file which is going to normal alphabetic letters
         """
         with open(fileName, "r") as inStrm:
             #read the file in as a gigantic string
@@ -227,57 +258,81 @@ class RSA():
         fileContents = "".join(fileContents)
         self.__message = fileContents
 
-        """
-        binaryFileContents = []
-        if (self.__encryption == encryptionStatus.decrypted):
-            for char in fileContents:
-                binaryFileContents.append(self._char2Binary(char))
-        else:
-            for hexDec in fileContents:
-                #binaryFileContents.append(self._hexadecimal2Binary(hexDec))
-                binaryFileContents.append(self._hexadecimal2BinaryFile(hexDec))
-
-        #making this back into one giant string again
-        binaryFileContents = "".join(binaryFileContents)
-        self.__message = binaryFileContents
-        print("message length ", len(self.__message))
-
-        return binaryFileContents
-        """
         return fileContents
 
-    #TODO: just generate numbers which are going to be 155 digits long and 
-    #just pick a number in between that range, it's better to get something implemented
-    #by trying to do it the right way if I am being honest with you at this current moment
+    def loadHexFile(self, fileName):
+        """
+        load a file which is going to be formatted as hexadecimal
+        """
+
+        #TODO: you will need to come back to this one, and you will need to figure
+        #how the you're going to be saving the file into memory
+        with open(fileName, "r") as inStrm:
+            #read the file in as a gigantic string
+            fileContents = inStrm.readlines()
+
+        hexFileContents = []
+        for hexDec in fileContents:
+            hexFileContents.append(self._hexadecimal2BinaryFile(hexDec))
+
+        #making this back into one giant string again
+        hexFileContents = "".join(hexFileContents)
+        self.__message = hexFileContents
+        print("message length ", len(self.__message))
+
+        return hexFileContents
+
+    def saveFileHex(self, fileName):
+        """
+        Save the file in a hex decimal format
+        """
+        binaryMessage = self._padBinaryNum(self.__message, 8)
+        startVal =  [xx for xx in range(0, len(binaryMessage), 8)]
+        hexGroups = self._createBlocks(binaryMessage, startVal)
+
+        #saving the file as hexadecimal digits
+        if (self.__encryption == encryptionStatus.encrypted):
+            #grouping the binary into groups of 8 bits
+            #grouping the current message with each group having 8 bits
+            with open(fileName, "w" ) as outStrm:
+                for binary in hexGroups:
+                    toWrite = self._binary2Hexadecimal(binary)
+                    if len(toWrite) == 1:
+                        toWrite = "0" + toWrite
+                    outStrm.write(toWrite)
+        else:
+            with open(fileName, "w") as outStrm:
+                for binary in hexGroups:
+                    outStrm.write(self._binary2Char(binary))
+    
+    def saveFile(self, fileName):
+        """
+        Save a file as a normal text file
+        """
+        with open(fileName, "w") as outStrm:
+            outStrm.writelines(self.__message)
+
     def _generatePandQ(self):
         """
         PURPOSE: to generate a p and q value which will form a target n
-        in the range of 2^1024. Hence, it will produce a p and q which are going
+        in the range of 2^64. Hence, it will produce a p and q which are going
         to be 2^512. Numbers in the range will approximately have 155
         digits
-
-        Notes:
-            TODO: currently mocking function to allow for faster execution
-            times hence, come back and change this so it generates numbers in
-            appropriate range
         """
 
-        #the target n is going to be 2^1024 for cryptographic secure
+        #the target n is going to be 2^64 for as specified by the assignment
         #algorithm. Hence, the prime numbers will need to be in the range of 
-        #2^512 which will be approximately 155 digits long. Hence, randomly
+        #2^32 which will be approximately 155 digits long. Hence, randomly
         #generating numbers which will have 155 digits
 
-        #TODO: comeback and remove the mocking of this current objec
-        #lowest bound should be 3 to satisfy n-1 in miller rabin algortihm
-        lowerBound = 4
-        upperBound = 20
-
-        """
-        lowerBound = "".join(["0" for ii in range(1,155)])
+        lowerBound = "".join(["0" for ii in range(1,20)])
         lowerBound = int("1" + lowerBound)
-        upperBound = "".join(["9" for ii in range(1,156)])
+        upperBound = "".join(["9" for ii in range(30, 50)])
         upperBound = int(upperBound)
-        """
+
+        print("lower bound ", lowerBound)
+        print("upper bound ", upperBound)
+
         valid = False
         p, q = None, None
         pValid, qValid  = False, False
@@ -388,31 +443,6 @@ class RSA():
 
         return currPow, n
 
-
-
-    def saveFile(self, fileName):
-        """
-        Code adapted from own assignment one submission for fundamental concepts of 
-        cryptography ISEC2000
-        """
-        binaryMessage = self._padBinaryNum(self.__message, 8)
-        startVal =  [xx for xx in range(0, len(binaryMessage), 8)]
-        hexGroups = self._createBlocks(binaryMessage, startVal)
-
-        #saving the file as hexadecimal digits
-        if (self.__encryption == encryptionStatus.encrypted):
-            #grouping the binary into groups of 8 bits
-            #grouping the current message with each group having 8 bits
-            with open(fileName, "w" ) as outStrm:
-                for binary in hexGroups:
-                    toWrite = self._binary2Hexadecimal(binary)
-                    if len(toWrite) == 1:
-                        toWrite = "0" + toWrite
-                    outStrm.write(toWrite)
-        else:
-            with open(fileName, "w") as outStrm:
-                for binary in hexGroups:
-                    outStrm.write(self._binary2Char(binary))
 
     def _char2Binary(self, inChar):
         """
@@ -557,6 +587,10 @@ class RSA():
 
     def __validateInteger(self, n):
         if not isinstance(n, int):
-            raise ValueError("RSA must only work with integers")
+            raise RSAError("RSA must only work with integers")
+
+        if n >= 2 ** 64:
+            raise RSAError("Select an n which is within the range of 2**64"+
+                    " current selected number %s " % n)
 
         return n

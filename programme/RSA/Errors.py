@@ -16,3 +16,11 @@ class RSAEncryptionError(Error):
 class RSAMessageError(Error):
     def __init__(self, message):
         self.message = message
+
+class RSADecryptionError(Error):
+    def __init__(self, message):
+        self.message = message
+
+class RSAError(Error):
+    def __init__(self, message):
+        self.message = message

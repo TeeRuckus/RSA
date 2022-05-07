@@ -103,5 +103,5 @@ class testRSA(unittest.TestCase):
         self.testObj.n = 187
         self.testObj.publicKey = 7
         self.testObj.message = 88
-        self.assertEqual("7878", self.testObj.encrypt(), "encrypting number 88")
+        self.assertEqual("078078", self.testObj.encrypt(), "encrypting number 88")
 

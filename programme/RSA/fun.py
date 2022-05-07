@@ -1,8 +1,11 @@
-with open("RSA-test.txt", "r") as inStrm:
+with open("look.txt", "r") as inStrm:
     contents = inStrm.readlines()
 
 
-contents = "".join(contents)
+maxNum = max(contents)
+print(" max num: %s " % maxNum)
+"""
 contentsNumbers = "".join([str(ord(xx)) for xx in contents])
 print(contents)
 print(len(contentsNumbers))
+"""
