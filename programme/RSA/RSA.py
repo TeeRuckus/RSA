@@ -4,6 +4,7 @@ from Errors import *
 from secrets import SystemRandom
 
 DIGIT_LEN = 20
+DIGIT_LEN_HEX = 17
 
 #TODO: you will need to consider having any speed up tricks which you can use for you RSA algorithm
 #TODO: you will actually need to consider if you will need this class in this program or not, just seems like it's making your code highly coupled and is a waste of time
@@ -46,7 +47,7 @@ class RSA():
     def message(self, newMssg):
        self.__message = self.__validateMessage(newMssg)
 
-    @privateKey.setter 
+    @privateKey.setter
     def privateKey(self, inPrivKey):
         self.__privateKey = self.__validateKey(inPrivKey)
 
@@ -65,7 +66,7 @@ class RSA():
         e = M^(e) mod n, M < n
         """
 
-        if self.__message == None:
+        if self.__message == "None":
             raise RSAEncryptionError("Please set message before trying "+
                     "encryption")
 
@@ -121,12 +122,13 @@ class RSA():
         To decrypt the whole message in relation to the function
         d = M^(d) mod n 
         """
-
-        if self.__message == None:
+        #we have to compare it to the string of None because when you set a 
+        #message it's always going to be made to a string
+        if self.__message == "None":
             raise RSADecryptionError("Please set a cipher text before trying"+
                     " to decrypt message")
 
-        if self.__privateKey == None: 
+        if self.__privateKey == None:
             raise RSADecryptionError("Please set private key before trying"+
                     " to decrypt messages")
 
@@ -266,26 +268,21 @@ class RSA():
 
         return fileContents
 
-    def loadHexFile(self, fileName):
+    def loadFileHex(self, fileName):
         """
         load a file which is going to be formatted as hexadecimal
         """
-
-        #TODO: you will need to come back to this one, and you will need to figure
-        #how the you're going to be saving the file into memory
         with open(fileName, "r") as inStrm:
             #read the file in as a gigantic string
             fileContents = inStrm.readlines()
 
-        hexFileContents = []
-        for hexDec in fileContents:
-            hexFileContents.append(self._hexadecimal2BinaryFile(hexDec))
-
-        #making this back into one giant string again
-        hexFileContents = "".join(hexFileContents)
-        self.__message = hexFileContents
-
-        return hexFileContents
+        #changing the hex contents back to integers, so the encryption and 
+        #decryption algorithms can function as expected
+        fileContents = "".join(fileContents)
+        startValues = [xx for xx in range(0, len(fileContents), DIGIT_LEN_HEX)]
+        data = self.__createBlocks(fileContents, startValues)
+        dataInts = [self._hex2int(xx) for xx in data]
+        self.__message = "".join(dataInts)
 
     def saveFileHex(self, fileName):
         """
@@ -302,30 +299,6 @@ class RSA():
         with open(fileName, "w") as outStrm:
             outStrm.writelines(dataHex)
 
-
-
-        """
-        #I am going to write this from scratch using the prior code as inspiration
-        binaryMessage = self._padBinaryNum(self.__message, 8)
-        startVal =  [xx for xx in range(0, len(binaryMessage), 8)]
-        hexGroups = self._createBlocks(binaryMessage, startVal)
-
-        #saving the file as hexadecimal digits
-        if (self.__encryption == encryptionStatus.encrypted):
-            #grouping the binary into groups of 8 bits
-            #grouping the current message with each group having 8 bits
-            with open(fileName, "w" ) as outStrm:
-                for binary in hexGroups:
-                    toWrite = self._binary2Hexadecimal(binary)
-                    if len(toWrite) == 1:
-                        toWrite = "0" + toWrite
-                    outStrm.write(toWrite)
-        else:
-            with open(fileName, "w") as outStrm:
-                for binary in hexGroups:
-                    outStrm.write(self._binary2Char(binary))
-        """
-    
     def saveFile(self, fileName):
         """
         Save a file as a normal text file
@@ -551,38 +524,20 @@ class RSA():
         """
         inInt = int(inInt)
         hexNum = hex(inInt)
+        hexNum = hexNum[2:]
+        hexNum = format(hexNum, "0>%s" % DIGIT_LEN_HEX)
 
-        return hexNum[2:]
+        return hexNum
 
 
     def _hex2int(self, inHex):
         """
         To convert a hexadecimal number back to its integer representation
         """
-        return int(inHex, 16)
-
-
-
-    #TODO: you don't need this function anymore 
-    def _binary2Hexadecimal(self, inBinary):
-        """
-        Code adapted from own assignment one submission for fundamental concepts of 
-        cryptography ISEC2000
-        """
-        decimalNum =  int(inBinary,2)
-        hexNum = hex(decimalNum)
-
-        return hexNum[2:]
-
-
-    #TODO: you don't need this function at all
-    def  _binary2Char(self, inBinary):
-        """
-        Code adapted from own assignment one submission for fundamental concepts of 
-        cryptography ISEC2000
-        """
-        decNum = int(inBinary, 2)
-        return chr(decNum)
+        #TODO: I don't really think that  you will need this here, as you should've saved it in the correct manner which you will need to read the file in it at the moment
+        intHex = int(inHex,16)
+        intHex = format(intHex, "0>%s" % DIGIT_LEN)
+        return intHex
 
     #PRIVATE METHODS 
 
@@ -607,10 +562,6 @@ class RSA():
     def __validateMessage(self, inMssg):
         #forcing inMssg to be a string when it's read in
         inMssg = str(inMssg)
-#        if(not isinstance(inMssg, str)):
-#            raise RSAMessageError("Message must be a string, type of %s "+
-#                    "was given instead" % type(inMssg))
-
         if (len(inMssg) == 0):
             raise RSAMessageError("A blank message was supplied length of"
                     "%s message was supplied " % len(inMssg))

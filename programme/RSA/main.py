@@ -11,7 +11,12 @@ def main():
     encryptedMssg = rsaObj.encrypt()
     #trying to save the current message as a hex file
     rsaObj.saveFileHex("HexTest.txt")
+    rsaObj.message = None
+    rsaObj.loadFileHex("HexTest.txt")
+
     message = rsaObj.decrypt()
+    print(message)
+
 
 
 
