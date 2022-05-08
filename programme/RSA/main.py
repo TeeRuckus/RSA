@@ -68,7 +68,7 @@ def loadKeys(rsa, fileName=DEFAULT_KEYS_FILE):
             print("no keys stored in file, generating new keys")
             generateKeys(rsa, fileName)
         else:
-            fileFound(fileConents, rsa)
+            fileFound(fileContents, rsa)
 
     except FileNotFoundError as err:
         print("Specified key file doesn't exist. Generating and creating new"
