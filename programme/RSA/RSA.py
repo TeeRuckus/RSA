@@ -3,6 +3,9 @@ from Errors import *
 #recommended package for cryptographic safe random generated numbers
 from secrets import SystemRandom
 
+DIGIT_LEN = 20
+
+#TODO: you will need to consider having any speed up tricks which you can use for you RSA algorithm
 #TODO: you will actually need to consider if you will need this class in this program or not, just seems like it's making your code highly coupled and is a waste of time
 class encryptionStatus(Enum):
     """
@@ -103,7 +106,11 @@ class RSA():
         e = str(pow(int(inBlock), self.__publicKey, self.__n))
         #formatting the encrypted message, so it will be a lot easier to 
         #decrypt at the end
-        e = format(e, "0>3")
+        #giving the range which prime numbers can be, the longest length of
+        #integer possible is going to be of 20 digits hence, for numbers
+        #which will fall show we will want to pad them to the left, so 
+        #it's easier to decrypt
+        e = format(e, "0>%s" % DIGIT_LEN)
 
         return e
 
@@ -132,7 +139,7 @@ class RSA():
         #the cipher texts will have being stored in groups of three
         #from the encryption algorithm, getting groups of three from the
         #algorithm 
-        startValues = [xx for xx in range(0, len(self.__message), 3)]
+        startValues = [xx for xx in range(0, len(self.__message), DIGIT_LEN)]
         cipher = self.__createBlocks(self.__message, startValues)
 
         message = []
@@ -151,7 +158,6 @@ class RSA():
         of
         d = m^(d) mod n
         """
-        print("inCipher: ", inCipher)
         e = chr(pow(int(inCipher), self.__privateKey, self.__n))
 
         return e
@@ -278,7 +284,6 @@ class RSA():
         #making this back into one giant string again
         hexFileContents = "".join(hexFileContents)
         self.__message = hexFileContents
-        print("message length ", len(self.__message))
 
         return hexFileContents
 
@@ -286,6 +291,7 @@ class RSA():
         """
         Save the file in a hex decimal format
         """
+
         binaryMessage = self._padBinaryNum(self.__message, 8)
         startVal =  [xx for xx in range(0, len(binaryMessage), 8)]
         hexGroups = self._createBlocks(binaryMessage, startVal)
@@ -325,13 +331,19 @@ class RSA():
         #2^32 which will be approximately 155 digits long. Hence, randomly
         #generating numbers which will have 155 digits
 
-        lowerBound = "".join(["0" for ii in range(1,20)])
+        """
+        lowerBound = "".join(["0" for ii in range(1 * 2 **10, 2 * 2 **10)])
         lowerBound = int("1" + lowerBound)
-        upperBound = "".join(["9" for ii in range(30, 50)])
+        upperBound = "".join(["9" for ii in range(2 * 2**10, 3 * 2 **10)])
         upperBound = int(upperBound)
+        """
+        #TODO: this is going to be a really good point to put into your report,
+        #how big these ranges of numbers will determine how well you can 
+        #encrypt and decrypt messages, as that will determine how well you can 
+        #revert back to the cipher text
+        lowerBound =   pow(2,32)
+        upperBound = 2 * pow(2, 32)
 
-        print("lower bound ", lowerBound)
-        print("upper bound ", upperBound)
 
         valid = False
         p, q = None, None
@@ -578,18 +590,13 @@ class RSA():
         if (self.__n == None):
             raise RSAKeyError("Please set n before you set the keys")
 
-        #need to check if the keys are going to be co-prime to each other, as
-        #they should've being due to the calculation of the key
-        if(self.gcdExt(inKey, self.__n)[0] != 1):
-            raise RSAKeyError("Key must be co-prime with n")
-
         return  inKey
 
     def __validateInteger(self, n):
         if not isinstance(n, int):
             raise RSAError("RSA must only work with integers")
 
-        if n >= 2 ** 64:
+        if n <= (2 ** 64):
             raise RSAError("Select an n which is within the range of 2**64"+
                     " current selected number %s " % n)
 
