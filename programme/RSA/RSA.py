@@ -421,59 +421,6 @@ class RSA():
 
         return currPow, n
 
-
-    def _char2Binary(self, inChar):
-        """
-        Code adapted from own assignment one submission for fundamental concepts of 
-        cryptography ISEC2000
-        """
-        intChar = ord(inChar)
-        binaryNum = ""
-
-        #we want this to be easily represented in hexadecimal, and
-        #we don't want information to be lost in the process. Hence,
-        #requiring that each character will be represented by 8 bits. As
-        #that will encompass all characters on the ASCII table
-        binaryNum = self._calcInt2Binary(intChar, 8)
-
-        return binaryNum
-
-    def _hexadecimal2BinaryFile(self, inHex):
-        """
-        Code adapted from own assignment one submission for fundamental concepts of 
-        cryptography ISEC2000
-        """
-        decNum = int(inHex, 16)
-        binaryNum = format(decNum, "0>4b")
-
-        return binaryNum
-
-
-    def _int2Binary(self, intNum, requiredLen=0):
-        """
-        PURPOSE: to convert an integer number to a binary number of a required 
-        length, if binary number can be represented by the required length
-        """
-        return format(intNum, "0>"+str(requiredLen)+"b")
-
-    def _createBlocks(self,inBinary,startVal):
-        """
-        Code adapted from own assignment one submission for fundamental concepts of 
-        cryptography ISEC2000
-        """
-        blocks = []
-        for pos, start in enumerate(startVal):
-            #if they is going to be only one block, we just ant to return that
-            if len(startVal) == 1:
-                blocks.append(inBinary)
-            elif pos < len(startVal) - 1:
-                blocks.append(inBinary[start:startVal[pos+1]])
-
-        blocks.append(inBinary[startVal[-1]:])
-
-
-        return blocks
-
     def _int2Hex(self, inInt):
         """
         To convert an integer number into it's hexadecimal equivalent
