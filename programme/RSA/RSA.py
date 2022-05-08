@@ -253,7 +253,6 @@ class RSA():
 
         return (pubKey, privKey, n)
 
-    #TODO: I have no idea why this is working right now but it is 
     def loadFileText(self, fileName):
         """
         load a file which is going to normal alphabetic letters
