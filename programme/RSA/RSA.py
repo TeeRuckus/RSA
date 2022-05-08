@@ -292,6 +292,20 @@ class RSA():
         Save the file in a hex decimal format
         """
 
+        #splitting up the message into the blocks which they were created, so 
+        #we can convert that into a hexadecimal number 
+        startValues = [xx for xx in range(0, len(self.__message), DIGIT_LEN)]
+        data = self.__createBlocks(self.__message, startValues)
+        dataHex = [self._int2Hex(xx) for xx in data]
+        dataHex = "".join(dataHex)
+
+        with open(fileName, "w") as outStrm:
+            outStrm.writelines(dataHex)
+
+
+
+        """
+        #I am going to write this from scratch using the prior code as inspiration
         binaryMessage = self._padBinaryNum(self.__message, 8)
         startVal =  [xx for xx in range(0, len(binaryMessage), 8)]
         hexGroups = self._createBlocks(binaryMessage, startVal)
@@ -310,6 +324,7 @@ class RSA():
             with open(fileName, "w") as outStrm:
                 for binary in hexGroups:
                     outStrm.write(self._binary2Char(binary))
+        """
     
     def saveFile(self, fileName):
         """
@@ -530,6 +545,25 @@ class RSA():
 
         return blocks
 
+    def _int2Hex(self, inInt):
+        """
+        To convert an integer number into it's hexadecimal equivalent
+        """
+        inInt = int(inInt)
+        hexNum = hex(inInt)
+
+        return hexNum[2:]
+
+
+    def _hex2int(self, inHex):
+        """
+        To convert a hexadecimal number back to its integer representation
+        """
+        return int(inHex, 16)
+
+
+
+    #TODO: you don't need this function anymore 
     def _binary2Hexadecimal(self, inBinary):
         """
         Code adapted from own assignment one submission for fundamental concepts of 
@@ -541,6 +575,7 @@ class RSA():
         return hexNum[2:]
 
 
+    #TODO: you don't need this function at all
     def  _binary2Char(self, inBinary):
         """
         Code adapted from own assignment one submission for fundamental concepts of 

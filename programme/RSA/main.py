@@ -9,8 +9,9 @@ def main():
     rsaObj.privateKey = keys[1]
     contents = rsaObj.loadFileText("RSA-test.txt")
     encryptedMssg = rsaObj.encrypt()
+    #trying to save the current message as a hex file
+    rsaObj.saveFileHex("HexTest.txt")
     message = rsaObj.decrypt()
-    print(message)
 
 
 
