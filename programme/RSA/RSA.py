@@ -6,23 +6,12 @@ from secrets import SystemRandom
 DIGIT_LEN = 20
 DIGIT_LEN_HEX = 17
 
-#TODO: you will need to consider having any speed up tricks which you can use for you RSA algorithm
-#TODO: you will actually need to consider if you will need this class in this program or not, just seems like it's making your code highly coupled and is a waste of time
-class encryptionStatus(Enum):
-    """
-    Code adapted from own assignment one submission for fundamental concepts of
-    cryptography ISEC2000
-    """
-    encrypted = 1
-    decrypted = 2
-
 class RSA():
     def __init__(self):
         self.__message = None
         self.__privateKey = None
         self.__publicKey = None
         self.__n = None
-        self.__encryption  = encryptionStatus.decrypted
 
 
     #ACCESSOR METHODS
@@ -318,16 +307,6 @@ class RSA():
         #2^32 which will be approximately 155 digits long. Hence, randomly
         #generating numbers which will have 155 digits
 
-        """
-        lowerBound = "".join(["0" for ii in range(1 * 2 **10, 2 * 2 **10)])
-        lowerBound = int("1" + lowerBound)
-        upperBound = "".join(["9" for ii in range(2 * 2**10, 3 * 2 **10)])
-        upperBound = int(upperBound)
-        """
-        #TODO: this is going to be a really good point to put into your report,
-        #how big these ranges of numbers will determine how well you can 
-        #encrypt and decrypt messages, as that will determine how well you can 
-        #revert back to the cipher text
         lowerBound =   pow(2,32)
         upperBound = 2 * pow(2, 32)
 
@@ -477,25 +456,6 @@ class RSA():
         """
         return format(intNum, "0>"+str(requiredLen)+"b")
 
-    #TODO: I think that he maths in here is going to be a little bit wrong
-    def _padBinaryNum(self, inBinary, requiredLen):
-        """
-        Code adapted from own assignment one submission for fundamental concepts of 
-        cryptography ISEC2000
-        """
-
-        remainder = 0
-        #we always want the big number to be divided by the smaller number
-        if len(inBinary) > requiredLen:
-            remainder = len(inBinary) % requiredLen
-        else:
-            remainder =  requiredLen % len(inBinary)
-
-        bits = "".join(["0" for xx in range(0,remainder)])
-        #padding the front of the message with the required zeros
-        inBinary = bits + inBinary
-        return  inBinary
-
     def _createBlocks(self,inBinary,startVal):
         """
         Code adapted from own assignment one submission for fundamental concepts of 
@@ -509,9 +469,6 @@ class RSA():
             elif pos < len(startVal) - 1:
                 blocks.append(inBinary[start:startVal[pos+1]])
 
-        #TODO: make sure that this is actually working properly
-        #print(startVal[-1])
-        #flushing out the remainder of the message once at the end of the blocks#
         blocks.append(inBinary[startVal[-1]:])
 
 
@@ -533,7 +490,6 @@ class RSA():
         """
         To convert a hexadecimal number back to its integer representation
         """
-        #TODO: I don't really think that  you will need this here, as you should've saved it in the correct manner which you will need to read the file in it at the moment
         intHex = int(inHex,16)
         intHex = format(intHex, "0>%s" % DIGIT_LEN)
         return intHex

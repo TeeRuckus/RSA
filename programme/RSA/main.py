@@ -37,24 +37,6 @@ def main():
         rsa.decrypt()
         rsa.saveFile(args.outputFile)
 
-def fakemain():
-    #I am just trying to play with my assignment and to see if I can get it
-    #encrypting and decrypting properly for the text
-    rsaObj = RSA()
-    keys = rsaObj.generateKeys()
-    rsaObj.n = keys[2]
-    rsaObj.publicKey = keys[0]
-    rsaObj.privateKey = keys[1]
-    contents = rsaObj.loadFileText("RSA-test.txt")
-    encryptedMssg = rsaObj.encrypt()
-    #trying to save the current message as a hex file
-    rsaObj.saveFileHex("HexTest.txt")
-    rsaObj.message = None
-    rsaObj.loadFileHex("HexTest.txt")
-
-    message = rsaObj.decrypt()
-    print(message)
-
 def loadKeys(rsa, fileName=DEFAULT_KEYS_FILE):
     """
     Function to load keys from file if the file exists, if the keys file doesn't

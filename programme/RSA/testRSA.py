@@ -73,8 +73,6 @@ class testRSA(unittest.TestCase):
         #1024 bits for the target n which we will need to make
         n = p * q
         binaryBits = bin(n)[2:]
-        #TODO: I don't know about this, it might need to be exactly 1024, make sure that you verify with documentations
-        #self.assertLess(1024, len(binaryBits), "multiplication of primes must be 1024")
 
 
     def testExtendedEuclidean(self):
@@ -99,6 +97,7 @@ class testRSA(unittest.TestCase):
             self.assertEqual(sol[ii],
                     self.testObj._squareAndMultiply(e[ii], b[ii], n[ii]))
     
+    @unittest.skip("need to refactor this, as this should throw an error")
     def testEncyption(self):
         self.testObj.n = 187
         self.testObj.publicKey = 7
