@@ -3,8 +3,10 @@ from Errors import *
 #recommended package for cryptographic safe random generated numbers
 from secrets import SystemRandom
 
-DIGIT_LEN = 20
-DIGIT_LEN_HEX = 17
+#this is going to be the numbers which will work for p and q numbers being 2^64
+#DIGIT_LEN = 20
+DIGIT_LEN = 41
+DIGIT_LEN_HEX = 35
 
 class RSA():
     def __init__(self):
@@ -307,8 +309,8 @@ class RSA():
         #2^32 which will be approximately 155 digits long. Hence, randomly
         #generating numbers which will have 155 digits
 
-        lowerBound =   pow(2,32)
-        upperBound = 2 * pow(2, 32)
+        lowerBound =   pow(2,64)
+        upperBound = 2 * pow(2,64)
 
 
         valid = False

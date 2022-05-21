@@ -3,7 +3,7 @@ with open("look.txt", "r") as inStrm:
 
 
 maxNum = max(contents)
-print(" max num: %s " % maxNum)
+print(" max num: %s " % len(maxNum))
 """
 contentsNumbers = "".join([str(ord(xx)) for xx in contents])
 print(contents)

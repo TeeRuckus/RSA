@@ -60,7 +60,7 @@ def loadKeys(rsa, fileName=DEFAULT_KEYS_FILE):
 
 
 def fileFound(fileContents, rsa):
-    print("Found file ...")
+    print("Found keys file, and loading from file")
     keys = "".join(fileContents)
     keys = keys.split(" ")
     keys = [int(xx.strip()) for xx in keys]
